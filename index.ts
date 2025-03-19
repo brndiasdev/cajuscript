@@ -53,21 +53,23 @@ function readExcelFile(filePath: string): Company[] {
   }
   const workbook = xlsx.readFile(filePath)
   const sheetName = workbook.SheetNames[0]
-  const data = xlsx.utils.sheet_to_json(
-    workbook.Sheets[sheetName]
-  )
+  const rawData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName])
+  
+  // Map raw data to expected format, handling column name variations
+  const data = (rawData as any[]).map(row => ({
+    empresa: row.Empresa || row.empresa || row.EMPRESA || '',
+    ...row
+  }))
 
   // Debug: Log the first row to see column names
   if (data.length > 0) {
-    console.log(
-      '📋 Available columns:',
-      Object.keys(data[0] as object)
-    )
+    console.log('📋 Available columns:', Object.keys(data[0]))
+    console.log('📊 Sample row:', data[0])
   } else {
     console.log('❌ No data found in spreadsheet')
   }
 
-  return data as Company[]
+  return data
 }
 
 /** Writes data to an Excel file */
@@ -181,12 +183,9 @@ async function processCompany(
   company: Company,
   processedData: ProcessedCompany[]
 ): Promise<void> {
-  const companyName = company.empresa?.trim()
+  const companyName = company.empresa?.toString().trim()
   if (!companyName) {
-    processedData.push({
-      ...company,
-      link_site: 'Sem Nome',
-    })
+    processedData.push({ ...company, link_site: 'Sem Nome' })
     return
   }
 
