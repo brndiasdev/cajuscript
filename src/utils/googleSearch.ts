@@ -28,7 +28,7 @@ async function makeSearchRequest(
           q: query,
           num: 10,
         },
-        timeout: 10000,
+        timeout: 500,
       }
     );
     return response.data.items || [];
