@@ -20,30 +20,23 @@ interface LogEntry {
 }
 
 export default function Home() {
-  // Configuration state
   const [apiKey, setApiKey] = useState( '' );
   const [searchEngineId, setSearchEngineId] = useState( '' );
   const [maxLinksPerCompany, setMaxLinksPerCompany] = useState( 4 );
   const [searchDelay, setSearchDelay] = useState( 500 );
 
-  // File upload state
   const [selectedFile, setSelectedFile] = useState<File | null>( null );
 
-  // Processing state
   const [status, setStatus] = useState<'waiting' | 'processing' | 'complete' | 'error' | 'paused'>( 'waiting' );
   const [currentIndex, setCurrentIndex] = useState( 0 );
   const [totalCompanies, setTotalCompanies] = useState( 0 );
 
-  // Results state
   const [results, setResults] = useState<ProcessedCompany[]>([]);
 
-  // Logs state
   const [logs, setLogs] = useState<LogEntry[]>([]);
 
-  // Translation hook
   const t = useTranslations();
 
-  // Handle config changes
   const handleConfigChange = ( config: {
     apiKey: string;
     searchEngineId: string;
@@ -58,7 +51,6 @@ export default function Home() {
     addLog( 'Configuration updated', 'info' );
   };
 
-  // Handle file selection
   const handleFileSelect = ( file: File ) => {
     setSelectedFile( file );
     setStatus( 'waiting' );
@@ -68,7 +60,6 @@ export default function Home() {
     addLog( `File selected: ${file.name}`, 'info' );
   };
 
-  // Add log entry
   const addLog = ( message: string, type: 'info' | 'success' | 'error' | 'warning' = 'info' ) => {
     const now = new Date();
     const timestamp = now.toLocaleTimeString();
@@ -76,12 +67,10 @@ export default function Home() {
     setLogs( prev => [...prev, { timestamp, message, type }]);
   };
 
-  // Clear logs
   const handleClearLogs = () => {
     setLogs([]);
   };
 
-  // Start processing
   const handleStart = async () => {
     if ( !selectedFile || !apiKey || !searchEngineId ) {
       addLog( 'Missing file or configuration', 'error' );
@@ -92,7 +81,6 @@ export default function Home() {
       setStatus( 'processing' );
       addLog( 'Starting search process', 'info' );
 
-      // Create form data with file and configuration
       const formData = new FormData();
       formData.append( 'file', selectedFile );
       formData.append( 'apiKey', apiKey );
@@ -100,7 +88,6 @@ export default function Home() {
       formData.append( 'maxLinksPerCompany', maxLinksPerCompany.toString());
       formData.append( 'searchDelay', searchDelay.toString());
 
-      // Process the file
       const processedResults = await processExcelFile( formData );
 
       setResults( processedResults );
@@ -115,27 +102,22 @@ export default function Home() {
     }
   };
 
-  // Pause processing
   const handlePause = () => {
     setStatus( 'paused' );
     addLog( 'Processing paused', 'warning' );
   };
 
-  // Stop processing
   const handleStop = () => {
     setStatus( 'waiting' );
     setCurrentIndex( 0 );
     addLog( 'Processing stopped', 'warning' );
   };
 
-  // Download results
   const handleDownloadResults = () => {
     if ( results.length === 0 ) {return;}
 
     try {
-      // Prepare data for Excel file
       const excelData = results.map( company => {
-        // Format links as a single comma-separated string
         const linksText = company.links.map( link => link.link ).join( ',' );
 
         return {
@@ -144,10 +126,8 @@ export default function Home() {
         };
       });
 
-      // Create Excel file
       const excelFile = createExcelFile( excelData );
 
-      // Create download link
       const url = URL.createObjectURL( excelFile );
       const a = document.createElement( 'a' );
       a.href = url;
@@ -155,7 +135,6 @@ export default function Home() {
       document.body.appendChild( a );
       a.click();
 
-      // Clean up
       URL.revokeObjectURL( url );
       document.body.removeChild( a );
 

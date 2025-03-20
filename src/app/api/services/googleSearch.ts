@@ -7,7 +7,7 @@ const API_ENDPOINT =
 const MAX_API_RESULTS = 10;
 const MAX_RETRIES = 3;
 const INITIAL_RETRY_DELAY_MS = 1000;
-const MAX_RESULTS_PER_COMPANY = 4; // New constant for limiting results
+const MAX_RESULTS_PER_COMPANY = 4;
 
 interface GoogleSearchResult {
   readonly title: string
@@ -36,15 +36,13 @@ export class GoogleSearchService {
   private generateDomainGuesses(
     companyName: string
   ): string[] {
-    // Clean company name for domain usage
     const normalizedName = companyName
       .toLowerCase()
       .normalize( 'NFD' )
-      .replace( /[\u0300-\u036f]/g, '' ) // Remove accents
+      .replace( /[\u0300-\u036f]/g, '' )
       .replace( /\s+/g, '' )
       .replace( /[&-]/g, '' );
 
-    // Generate common domain patterns
     return [
       `${normalizedName}.com.br`,
       `${normalizedName}.com`,
@@ -53,7 +51,6 @@ export class GoogleSearchService {
       `${normalizedName}.br`,
       `${normalizedName}.org.br`,
       `${normalizedName}.org`,
-      // Add variants with hyphen if original has multiple words
       ...( companyName.includes( ' ' )
         ? [
           `${companyName.toLowerCase().replace( /\s+/g, '-' )}.com.br`,
@@ -67,12 +64,10 @@ export class GoogleSearchService {
   private generateSearchQueries(
     companyName: string
   ): string[] {
-    // Create a version without accents for more accurate matching
     const normalizedName = companyName
       .normalize( 'NFD' )
       .replace( /[\u0300-\u036f]/g, '' );
 
-    // Create exact match for company name
     const exactName = `"${companyName}"`;
     const baseFilters = [
       '-site:google.*',
@@ -85,24 +80,19 @@ export class GoogleSearchService {
       '-ext:pdf',
     ].join( ' ' );
 
-    // Generate domain guesses for direct site searches
     const domainGuesses =
       this.generateDomainGuesses( companyName );
     const domainQueries = domainGuesses.map(
       ( domain ) => `site:${domain} ${exactName}`
     );
 
-    // Add general queries
     return [
-      // Start with direct domain queries (highest priority)
       ...domainQueries,
-
-      // Then try more general searches
       `${exactName} site oficial site:.br ${baseFilters}`,
       `${exactName} homepage site:.br ${baseFilters}`,
       `${exactName} website oficial ${baseFilters}`,
       `${exactName} "contato" site:.br ${baseFilters}`,
-      `${normalizedName} engenharia site oficial site:.br ${baseFilters}`, // Specific for engineering companies
+      `${normalizedName} engenharia site oficial site:.br ${baseFilters}`,
     ];
   }
 
@@ -118,15 +108,13 @@ export class GoogleSearchService {
         this.config.maxLinksPerCompany,
         MAX_API_RESULTS
       ),
-      gl: 'br', // Geolocation set to Brazil
-      lr: 'lang_pt', // Language restriction to Portuguese
-      fields: 'items(title,link,snippet),searchInformation', // Explicitly request fields
-      start: 1, // Start from the first result
+      gl: 'br',
+      lr: 'lang_pt',
+      fields: 'items(title,link,snippet),searchInformation',
+      start: 1,
     };
 
     try {
-      console.log( `Executing search query: ${query}` );
-
       const response =
         await axios.get<GoogleSearchResponse>(
           API_ENDPOINT,
@@ -134,9 +122,6 @@ export class GoogleSearchService {
         );
 
       if ( response.data.error ) {
-        console.error(
-          `API Error: ${response.data.error.code} - ${response.data.error.message}`
-        );
         return [];
       }
 
@@ -144,15 +129,9 @@ export class GoogleSearchService {
         !response.data.items ||
         response.data.items.length === 0
       ) {
-        console.log(
-          `No results found for query: "${query}"`
-        );
         return [];
       }
 
-      console.log(
-        `Found ${response.data.items.length} results for query: "${query}"`
-      );
       return (
         response.data.items.filter(
           ( item ) => item.link && item.title
@@ -160,30 +139,16 @@ export class GoogleSearchService {
       );
     } catch ( error ) {
       if ( axios.isAxiosError( error )) {
-        console.error( `Axios error for query "${query}":`, {
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          message: error.message,
-        });
-
         if (
           this.isRateLimitError( error ) &&
           retryCount < MAX_RETRIES
         ) {
-          console.log(
-            `Rate limit hit, retrying (${retryCount + 1}/${MAX_RETRIES})...`
-          );
           await this.delayWithJitter( retryCount );
           return this.executeSearchQuery(
             query,
             retryCount + 1
           );
         }
-      } else {
-        console.error(
-          `Non-Axios error for query "${query}":`,
-          error
-        );
       }
 
       return [];
@@ -216,7 +181,6 @@ export class GoogleSearchService {
         .replace( /^www\./, '' )
         .toLowerCase();
 
-      // Enhanced blacklist check to eliminate common non-company websites
       const commonPlatforms = [
         'google.com',
         'facebook.com',
@@ -240,7 +204,6 @@ export class GoogleSearchService {
         domain.includes( d.toLowerCase())
       );
     } catch {
-      console.warn( `Invalid URL: ${link}` );
       return true;
     }
   }
@@ -250,20 +213,15 @@ export class GoogleSearchService {
     companyName: string
   ): SearchResult[] {
     if ( results.length === 0 ) {
-      console.warn(
-        `No results to rank for company: ${companyName}`
-      );
       return [];
     }
 
-    // Process company name for matching
     const normalizedCompanyName = companyName
       .toLowerCase()
       .normalize( 'NFD' )
-      .replace( /[\u0300-\u036f]/g, '' ) // Remove accents
+      .replace( /[\u0300-\u036f]/g, '' )
       .replace( /\s+/g, '' );
 
-    // Score and rank results
     const scoredResults = results
       .map(( result ) => {
         const domain = result.domain.toLowerCase();
@@ -272,35 +230,30 @@ export class GoogleSearchService {
           ''
         );
 
-        // Calculate a relevance score
         let score = 0;
 
-        // Highest priority: direct domain match
         if (
           normalizedDomain.includes( normalizedCompanyName )
         ) {
-          score += 200; // Increased weight for direct domain match
+          score += 200;
         }
 
-        // Domain TLD priorities
         if ( domain.endsWith( '.com.br' )) {
-          score += 80; // Higher weight for Brazilian commercial domains
+          score += 80;
         } else if ( domain.endsWith( '.br' )) {
           score += 60;
         } else if ( domain.endsWith( '.com' )) {
           score += 40;
         }
 
-        // Title contains company name exactly
         if (
           result.title
             .toLowerCase()
             .includes( companyName.toLowerCase())
         ) {
-          score += 50; // Increased weight for title match
+          score += 50;
         }
 
-        // Official site indicators in title or snippet
         const officialTerms = [
           'oficial',
           'official',
@@ -313,7 +266,7 @@ export class GoogleSearchService {
             result.title.toLowerCase().includes( term )
           )
         ) {
-          score += 50; // Higher weight for official indicators
+          score += 50;
         }
         if (
           officialTerms.some(( term ) =>
@@ -323,7 +276,6 @@ export class GoogleSearchService {
           score += 30;
         }
 
-        // Penalize for common non-company domains that might slip through
         if (
           domain.includes( 'facebook' ) ||
           domain.includes( 'instagram' ) ||
@@ -333,7 +285,6 @@ export class GoogleSearchService {
           score -= 100;
         }
 
-        // Direct domain exact match (before www or subdomain)
         const domainGuesses =
           this.generateDomainGuesses( companyName );
         if (
@@ -341,7 +292,7 @@ export class GoogleSearchService {
             ( guess ) => normalizedDomain === guess
           )
         ) {
-          score += 500; // Very high priority for exact domain match
+          score += 500;
         }
 
         return {
@@ -358,12 +309,11 @@ export class GoogleSearchService {
     );
   }
 
-  // Simple function to generate a fallback URL for a company
   private generateFallbackURL( companyName: string ): string {
     const normalizedName = companyName
       .toLowerCase()
       .normalize( 'NFD' )
-      .replace( /[\u0300-\u036f]/g, '' ) // Remove accents
+      .replace( /[\u0300-\u036f]/g, '' )
       .replace( /\s+/g, '' )
       .replace( /[^a-z0-9]/g, '' );
 
@@ -380,24 +330,19 @@ export class GoogleSearchService {
     for ( const domain of domainGuesses ) {
       const url = `https://${domain}`;
       try {
-        // Just check if the domain exists with a HEAD request
         const response = await axios.head( url, {
           timeout: 5000,
-          validateStatus: ( status ) => status < 500, // Accept any non-server error
+          validateStatus: ( status ) => status < 500,
         });
 
         if ( response.status < 400 ) {
-          // Domain exists and responds
           results.push({
             title: `${companyName} - Site Oficial`,
             link: url,
             snippet: `Site oficial da empresa ${companyName}.`,
             domain: domain,
           });
-          console.log(
-            `Found valid domain through direct check: ${url}`
-          );
-          break; // Stop after finding the first valid domain
+          break;
         }
       } catch ( error ) {
         console.error(
@@ -414,35 +359,19 @@ export class GoogleSearchService {
   public async searchCompany(
     companyName: string
   ): Promise<SearchResult[]> {
-    console.log(
-      `Starting search for company: ${companyName}`
-    );
-
-    // Validate API configuration
     if (
       !this.config.apiKey ||
       !this.config.searchEngineId
     ) {
-      console.error( 'Missing API Key or Search Engine ID' );
       return [];
     }
 
     const queries = this.generateSearchQueries( companyName );
-    console.log(
-      `Generated ${queries.length} search queries`
-    );
-
-    // Execute queries one at a time to avoid rate limiting
     const allResults: SearchResult[] = [];
-    let validResultCount = 0; // To track how many valid results we've found
+    let validResultCount = 0;
 
-    // Only process queries until we reach our target number of results
     for ( const query of queries ) {
-      // Check if we already have enough results
       if ( validResultCount >= MAX_RESULTS_PER_COMPANY ) {
-        console.log(
-          `Already found ${validResultCount} valid results, stopping search`
-        );
         break;
       }
 
@@ -461,34 +390,23 @@ export class GoogleSearchService {
           }));
 
         if ( filteredItems.length > 0 ) {
-          console.log(
-            `Found ${filteredItems.length} valid results for query: "${query}"`
-          );
           allResults.push( ...filteredItems );
 
-          // Count unique domains to determine when to stop
           const uniqueDomains = new Set(
             allResults.map(( item ) => item.domain )
           );
           validResultCount = uniqueDomains.size;
-
-          console.log(
-            `Current unique domain count: ${validResultCount}`
-          );
         }
       } catch ( error ) {
         console.error(
-          `Search error for ${companyName} with query "${query}":`,
+          `Error executing search query ${query}:`,
           error
         );
+        continue;
       }
     }
 
-    // If no results from Google, try direct domain checks
     if ( allResults.length === 0 ) {
-      console.log(
-        `No results from Google search, trying direct domain checks`
-      );
       const directResults =
         await this.fallbackDirectDomainCheck( companyName );
       if ( directResults.length > 0 ) {
@@ -496,17 +414,9 @@ export class GoogleSearchService {
       }
     }
 
-    console.log(
-      `Total results before deduplication: ${allResults.length}`
-    );
-
-    // If still no results, provide a fallback suggestion
     if ( allResults.length === 0 ) {
       const fallbackURL =
         this.generateFallbackURL( companyName );
-      console.log(
-        `No results found, providing fallback URL: ${fallbackURL}`
-      );
       allResults.push({
         title: `${companyName} - Site Sugerido`,
         link: fallbackURL,
@@ -515,7 +425,6 @@ export class GoogleSearchService {
       });
     }
 
-    // Deduplicate results
     const uniqueResultsMap = new Map<string, SearchResult>();
     allResults.forEach(( item ) => {
       if ( !uniqueResultsMap.has( item.link )) {
@@ -526,22 +435,16 @@ export class GoogleSearchService {
     const uniqueResults = Array.from(
       uniqueResultsMap.values()
     );
-    console.log(
-      `Unique results after deduplication: ${uniqueResults.length}`
-    );
 
-    // Rank results by relevance to company name
     const rankedResults = this.normalizeAndRankResults(
       uniqueResults,
       companyName
     );
 
-    // Return top results based on config
     const finalResults = rankedResults.slice(
       0,
       this.config.maxLinksPerCompany
     );
-    console.log( `Final results: ${finalResults.length}` );
 
     return finalResults;
   }

@@ -1,4 +1,3 @@
-// Blacklist of domains to filter out from search results
 export const BLACKLISTED_DOMAINS = [
   'tiktok.com',
   'youtube.com',

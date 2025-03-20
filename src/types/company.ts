@@ -1,6 +1,6 @@
 export interface Company {
   empresa: string
-  [key: string]: any // Allow additional properties from Excel
+  [key: string]: any
 }
 
 export interface SearchResult {

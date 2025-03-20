@@ -29,7 +29,6 @@ export default function ConfigurationForm({
   const [localMaxLinks, setLocalMaxLinks] = useState( maxLinksPerCompany );
   const [localSearchDelay, setLocalSearchDelay] = useState( searchDelay );
 
-  // Load values from localStorage on component mount
   useEffect(() => {
     const storedApiKey = localStorage.getItem( 'google_api_key' );
     const storedSearchEngineId = localStorage.getItem( 'google_search_engine_id' );
@@ -43,13 +42,11 @@ export default function ConfigurationForm({
   }, []);
 
   const handleSaveConfig = () => {
-    // Save to localStorage
     localStorage.setItem( 'google_api_key', localApiKey );
     localStorage.setItem( 'google_search_engine_id', localSearchEngineId );
     localStorage.setItem( 'max_links_per_company', localMaxLinks.toString());
     localStorage.setItem( 'search_delay', localSearchDelay.toString());
 
-    // Update parent component
     onConfigChange({
       apiKey: localApiKey,
       searchEngineId: localSearchEngineId,

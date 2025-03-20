@@ -27,7 +27,6 @@ export default function FileUploadForm({
 
     const file = files[0];
 
-    // Check if it's an Excel file
     if ( !file.name.endsWith( '.xlsx' ) && !file.name.endsWith( '.xls' )) {
       setError( 'Please upload an Excel file (.xlsx or .xls)' );
       setSelectedFile( null );
