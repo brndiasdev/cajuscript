@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleSearchService } from '../services/googleSearch';
 
-export async function POST(request: NextRequest) {
+export async function POST( request: NextRequest ) {
   try {
     const formData = await request.formData();
-    const companyData = formData.get('file');
-    const apiKey = formData.get('apiKey') as string;
-    const searchEngineId = formData.get('searchEngineId') as string;
-    const maxLinksPerCompany = parseInt(formData.get('maxLinksPerCompany') as string);
-    const searchDelay = parseInt(formData.get('searchDelay') as string);
+    const companyData = formData.get( 'file' );
+    const apiKey = formData.get( 'apiKey' ) as string;
+    const searchEngineId = formData.get(
+      'searchEngineId'
+    ) as string;
+    const maxLinksPerCompany = parseInt(
+      formData.get( 'maxLinksPerCompany' ) as string
+    );
+    const searchDelay = parseInt(
+      formData.get( 'searchDelay' ) as string
+    );
 
-    if (!companyData || !apiKey || !searchEngineId) {
+    if ( !companyData || !apiKey || !searchEngineId ) {
       return NextResponse.json(
         { error: 'Parâmetros obrigatórios ausentes' },
         { status: 400 }
@@ -18,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     let companyText = '';
-    if (companyData instanceof Blob) {
+    if ( companyData instanceof Blob ) {
       companyText = await companyData.text();
     } else {
       companyText = companyData.toString();
@@ -31,42 +37,55 @@ export async function POST(request: NextRequest) {
       searchDelay: searchDelay || 500,
     };
 
-    const searchService = new GoogleSearchService(config);
+    const searchService = new GoogleSearchService( config );
 
     try {
-      const companies = companyText.split('\n').filter(company => company.trim());
+      const companies = companyText
+        .split( '\n' )
+        .filter(( company ) => company.trim());
       const results = await Promise.all(
-        companies.map(async (company) => {
+        companies.map( async ( company ) => {
           try {
-            const searchResults = await searchService.searchCompany(company.trim());
+            const searchResults =
+              await searchService.searchCompany(
+                company.trim()
+              );
             return {
               empresa: company.trim(),
               links: searchResults,
-              status: 'complete'
+              status: 'complete',
             };
-          } catch (error) {
+          } catch ( error ) {
             return {
               empresa: company.trim(),
               links: [],
               status: 'error',
-              message: error instanceof Error ? error.message : String(error)
+              message:
+                error instanceof Error
+                  ? error.message
+                  : String( error ),
             };
           }
         })
       );
 
       return NextResponse.json({ results });
-
-    } catch (error) {
+    } catch ( error ) {
       return NextResponse.json(
-        { error: 'Erro ao processar empresas', details: String(error) },
+        {
+          error: 'Erro ao processar empresas',
+          details: String( error ),
+        },
         { status: 500 }
       );
     }
-  } catch (error) {
-    console.error('Erro ao processar requisição:', error);
+  } catch ( error ) {
+    console.error( 'Erro ao processar requisição:', error );
     return NextResponse.json(
-      { error: 'Erro interno do servidor', details: String(error) },
+      {
+        error: 'Erro interno do servidor',
+        details: String( error ),
+      },
       { status: 500 }
     );
   }
