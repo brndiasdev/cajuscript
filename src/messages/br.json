@@ -26,7 +26,10 @@
     "waiting": "Aguardando início...",
     "processing": "Processando {current} de {total}...",
     "complete": "Busca concluída!",
-    "error": "Ocorreu um erro durante a busca"
+    "error": "Ocorreu um erro durante a busca",
+    "errorHelp": "Verifique sua conexão e configurações e tente novamente",
+    "paused": "Busca pausada",
+    "pausedHelp": "Clique em 'Iniciar' para continuar a busca"
   },
   "results": {
     "title": "Resultados",
