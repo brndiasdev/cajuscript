@@ -9,7 +9,7 @@ import FileUploadForm from '../../components/FileUploadForm';
 import ProgressIndicator from '../../components/ProgressIndicator';
 import ResultsTable from '../../components/ResultsTable';
 import LogDisplay from '../../components/LogDisplay';
-import { processExcelFile } from './actions/searchCompanies';
+import { processExcelFile } from '../actions/searchCompanies';
 import { ProcessedCompany } from '@/types/company';
 import { createExcelFile } from '@/utils/excelParser';
 
