@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
     };
 
     const searchService = new GoogleSearchService(config);
-    
+
     try {
       const companies = companyText.split('\n').filter(company => company.trim());
       const results = await Promise.all(
