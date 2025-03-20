@@ -1,0 +1,42 @@
+{
+  "app": {
+    "title": "CajuScript - Automação de Busca",
+    "subtitle": "Automatize suas buscas com facilidade e eficiência",
+    "footer": "CajuScript © 2025 - Todos os direitos reservados"
+  },
+  "upload": {
+    "title": "Arquivo de Entrada",
+    "select": "Selecionar Arquivo Excel",
+    "noFileSelected": "Nenhum arquivo selecionado",
+    "fileFormat": "O arquivo deve conter uma coluna chamada 'empresa' com nomes de empresas"
+  },
+  "config": {
+    "title": "Configuração",
+    "apiKey": "Chave da API Google",
+    "searchEngineId": "ID do Mecanismo de Busca",
+    "save": "Salvar Configuração",
+    "enterApiKey": "Insira sua API Key",
+    "enterSearchEngine": "Insira seu CX"
+  },
+  "search": {
+    "start": "Iniciar",
+    "pause": "Pausar",
+    "stop": "Parar",
+    "progress": "Progresso",
+    "waiting": "Aguardando início...",
+    "processing": "Processando {current} de {total}...",
+    "complete": "Busca concluída!",
+    "error": "Ocorreu um erro durante a busca"
+  },
+  "results": {
+    "title": "Resultados",
+    "company": "Empresa",
+    "links": "Links",
+    "noResults": "Nenhum resultado encontrado",
+    "download": "Baixar Resultados"
+  },
+  "log": {
+    "title": "Log de Execução",
+    "clear": "Limpar Log"
+  }
+}
