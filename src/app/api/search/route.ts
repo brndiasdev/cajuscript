@@ -1,16 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
-import GoogleSearchService from '../services/googleSearch';
-
-const searchRequestSchema = z.object({
-  companies: z.array(z.string()).min(1),
-  config: z.object({
-    apiKey: z.string().min(1),
-    searchEngineId: z.string().min(1),
-    maxLinksPerCompany: z.number().int().positive(),
-    searchDelay: z.number().int().nonnegative(),
-  }),
-});
+import { GoogleSearchService } from '../services/googleSearch';
 
 export async function POST(request: NextRequest) {
   try {
