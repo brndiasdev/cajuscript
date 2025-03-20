@@ -25,6 +25,7 @@ class GoogleSearchService {
     console.log('apiKey', apiKey);
     console.log('searchEngineId', searchEngineId);
     console.log('maxLinksPerCompany', maxLinksPerCompany);
+    console.log('query', query);
 
     try {
       const response = await axios.get('https://www.googleapis.com/customsearch/v1', {
@@ -32,9 +33,6 @@ class GoogleSearchService {
           key: apiKey,
           cx: searchEngineId,
           q: query,
-          num: maxLinksPerCompany,
-          safe: 'active',
-          gl: 'br'
         },
         timeout: 10000,
       });
