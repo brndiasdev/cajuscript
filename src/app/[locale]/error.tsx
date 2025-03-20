@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useTranslations } from 'next-intl';
 import { ExclamationCircleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 export default function Error({
@@ -15,8 +14,6 @@ export default function Error({
     // Log the error to an error reporting service
     console.error( error );
   }, [error]);
-
-  const t = useTranslations( 'app' );
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
