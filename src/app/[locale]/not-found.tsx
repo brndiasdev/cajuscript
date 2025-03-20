@@ -1,10 +1,7 @@
 import { Link } from '@/i18n/routing';
-import { useTranslations } from 'next-intl';
 import { ExclamationTriangleIcon, HomeIcon } from '@heroicons/react/24/outline';
 
 export default function NotFound() {
-  const t = useTranslations( 'app' );
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
       <ExclamationTriangleIcon className="h-16 w-16 text-warning mb-4" />
