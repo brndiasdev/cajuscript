@@ -72,7 +72,7 @@ export default function FileUploadForm({
               </p>
             </div>
           ) : (
-            <p className="text-sm text-gray-500">{t( 'noFileSelected' )}</p>
+            <p className="text-sm text-gray-500 text-center">{t( 'noFileSelected' )}</p>
           )}
 
           <button
@@ -91,7 +91,7 @@ export default function FileUploadForm({
           </div>
         )}
 
-        <p className="text-xs text-gray-500 italic">
+        <p className="text-xs text-gray-500 italic text-center w-full">
           {t( 'fileFormat' )}
         </p>
       </div>
