@@ -31,15 +31,23 @@ export async function searchCompany(
 
     // Extract and filter search results
     const results = response.data.items || [];
+    if (!results.length) {
+      console.warn(`No results found for "${companyName}"`);
+      return [];
+    }
+
     const filteredResults = filterResults( results );
+    if (!filteredResults.length) {
+      console.warn(`All results for "${companyName}" were filtered out`);
+      return [];
+    }
 
     // Return only the specified maximum number of links
     return filteredResults.slice( 0, maxLinksPerCompany );
   } catch ( error ) {
     console.error( 'Google search error:', error );
-    throw new Error(
-      `Failed to search for "${companyName}": ${error instanceof Error ? error.message : String( error )}`
-    );
+    // Return empty array instead of throwing error
+    return [];
   }
 }
 
