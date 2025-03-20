@@ -13,35 +13,49 @@ export async function processCompanies(
 ): Promise<ProcessedCompany[]> {
   const results: ProcessedCompany[] = [];
   const apiBaseUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  console.log('apiBaseUrl', apiBaseUrl);
-  for (const company of companies) {
+  console.log( 'apiBaseUrl', apiBaseUrl );
+  for ( const company of companies ) {
     try {
-      if (results.length > 0) {
-        await new Promise((resolve) =>
-          setTimeout(resolve, config.searchDelay)
+      if ( results.length > 0 ) {
+        await new Promise(( resolve ) =>
+          setTimeout( resolve, config.searchDelay )
         );
       }
 
       const formData = new FormData();
-      formData.append('file', new Blob([company.empresa], { type: 'text/plain' }));
-      formData.append('apiKey', config.apiKey);
-      formData.append('searchEngineId', config.searchEngineId);
-      formData.append('maxLinksPerCompany', config.maxLinksPerCompany.toString());
-      formData.append('searchDelay', config.searchDelay.toString());
+      formData.append(
+        'file',
+        new Blob([company.empresa], { type: 'text/plain' })
+      );
+      formData.append( 'apiKey', config.apiKey );
+      formData.append(
+        'searchEngineId',
+        config.searchEngineId
+      );
+      formData.append(
+        'maxLinksPerCompany',
+        config.maxLinksPerCompany.toString()
+      );
+      formData.append(
+        'searchDelay',
+        config.searchDelay.toString()
+      );
 
       const apiUrl = `${apiBaseUrl}/api/search`;
-      const searchResults = await fetch(apiUrl, {
+      const searchResults = await fetch( apiUrl, {
         method: 'POST',
         body: formData,
       });
 
-      if (!searchResults.ok) {
+      if ( !searchResults.ok ) {
         throw new Error(
           `Failed to fetch search results: ${searchResults.statusText}`
         );
       }
 
-      const { results: [searchResult] } = await searchResults.json();
+      const {
+        results: [searchResult],
+      } = await searchResults.json();
 
       results.push({
         ...company,
@@ -49,7 +63,7 @@ export async function processCompanies(
         status: searchResult.status,
         message: searchResult.message,
       });
-    } catch (error) {
+    } catch ( error ) {
       results.push({
         ...company,
         links: [],
@@ -57,7 +71,7 @@ export async function processCompanies(
         message:
           error instanceof Error
             ? error.message
-            : String(error),
+            : String( error ),
       });
     }
   }
