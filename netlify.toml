@@ -1,0 +1,46 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+  NODE_VERSION = "18"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[functions]
+  node_bundler = "esbuild"
+
+# Fallback for API routes
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+# Redirect root to default locale (br)
+[[redirects]]
+  from = "/"
+  to = "/br"
+  status = 302
+  force = true
+
+# Ensure /en redirects to /br if accessed directly
+[[redirects]]
+  from = "/en"
+  to = "/br"
+  status = 302
+  force = true
+
+# Ensure /en/consorcio redirects to /br/consorcio if accessed directly
+[[redirects]]
+  from = "/en/consorcio"
+  to = "/br/consorcio"
+  status = 302
+  force = true
+
+# Fallback for all other routes
+[[redirects]]
+  from = "/*"
+  status = 200
+  to = "/index.html"
