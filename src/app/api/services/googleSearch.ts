@@ -37,7 +37,7 @@ class GoogleSearchService {
         timeout: 10000,
       });
 
-      console.log("response.data.items", response)
+      console.log("response.data.items", response.data.items)
 
       if (!response.data.items || response.data.items.length === 0) {
         throw new Error('No search results found');
