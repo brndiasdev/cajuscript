@@ -1,10 +1,6 @@
 import * as fs from 'fs'
 import axios from 'axios'
 import * as xlsx from 'xlsx'
-import { config } from 'dotenv'
-
-// Load environment variables
-config()
 
 // Constants for configuration
 const API_KEY = process.env.GOOGLE_API_KEY
@@ -25,6 +21,7 @@ const BLACKLISTED_DOMAINS = [
   'serasaexperian.com.br',
   'cnpj.biz',
   'econodata.com.br',
+  'google.com',
 ]
 
 // Interfaces for type safety
