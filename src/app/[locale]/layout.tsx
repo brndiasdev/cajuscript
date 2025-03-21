@@ -1,23 +1,23 @@
-import type { Metadata } from 'next'
-import type { ReactNode } from 'react'
-import { Suspense } from 'react'
-import { Geist, Geist_Mono } from 'next/font/google'
-import '@/app/globals.css'
-import Provider from '@/app/provider'
-import { Locale, locales } from '@/config/i18n-config'
-import { getTranslations } from 'next-intl/server'
-import Script from 'next/script'
-import { notFound } from 'next/navigation'
+import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
+import { Suspense } from 'react';
+import { Geist, Geist_Mono } from 'next/font/google';
+import '@/app/globals.css';
+import Provider from '@/app/provider';
+import { Locale, locales } from '@/config/i18n-config';
+import { getTranslations } from 'next-intl/server';
+import Script from 'next/script';
+import { notFound } from 'next/navigation';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
-})
+});
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
-})
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -50,8 +50,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: 'Script',
-    description:
-      'Transform your banking experience with Digibank. Access your accounts, make transfers, and manage your finances with our secure digital platform.',
+    description: 'Script de Automação',
     url: process.env.NEXT_PUBLIC_SITE_URL,
     siteName: 'Script',
     images: [
@@ -59,7 +58,7 @@ export const metadata: Metadata = {
         url: '/images/digibank-og.webp',
         width: 1200,
         height: 630,
-        alt: 'Digibank digital banking platform interface',
+        alt: 'Script Automação',
       },
     ],
     locale: 'en_US',
@@ -89,20 +88,20 @@ export const metadata: Metadata = {
   },
   category: 'Finance',
   classification: 'Digital Banking',
-}
+};
 
 async function getMessages(locale: string) {
   try {
     const messages = (
       await import(`@/messages/${locale}.json`)
-    ).default
-    return messages
+    ).default;
+    return messages;
   } catch (error) {
     console.error(
       `Failed to load messages for locale ${locale}:`,
       error
-    )
-    return (await import(`@/messages/en.json`)).default
+    );
+    return (await import(`@/messages/en.json`)).default;
   }
 }
 
@@ -110,17 +109,17 @@ export default async function RootLayout({
   children,
   params,
 }: {
-  children: ReactNode
-  params: Promise<{ locale: string }>
+  children: ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = await params
+  const { locale } = await params;
 
   if (!locales.includes(locale as Locale)) {
-    notFound()
+    notFound();
   }
 
-  const messages = await getMessages(locale)
-  await getTranslations({ locale })
+  const messages = await getMessages(locale);
+  await getTranslations({ locale });
 
   return (
     <html lang={locale}>
@@ -168,5 +167,5 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         data-utcoffset="-3"
       ></Script>
     </html>
-  )
+  );
 }
