@@ -3,7 +3,7 @@
 Uma aplicação Next.js 15 com TypeScript para automatização de pesquisas no Google baseadas em nomes de empresas fornecidos em um arquivo Excel.
 
 ## Funcionalidades
-
+<!--  -->
 - 📤 Upload de arquivos Excel contendo nomes de empresas
 - 🔍 Pesquisa automática no Google usando a API Custom Search
 - 📊 Retorna até 4 links relevantes por empresa
