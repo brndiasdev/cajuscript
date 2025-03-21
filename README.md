@@ -1,4 +1,4 @@
-# CajuScript - Automação de Busca
+# Script - Automação de Busca
 
 Uma aplicação Next.js 15 com TypeScript para automatização de pesquisas no Google baseadas em nomes de empresas fornecidos em um arquivo Excel.
 

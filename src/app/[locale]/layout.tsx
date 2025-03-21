@@ -1,28 +1,31 @@
-import type { Metadata } from "next";
-import type { ReactNode } from "react";
-import { Suspense } from "react";
-import { Geist, Geist_Mono } from "next/font/google";
-import "@/app/globals.css";
-import Provider from "@/app/provider";
-import { Locale, locales } from "@/config/i18n-config";
-import { getTranslations } from 'next-intl/server';
-import Script from "next/script";
-import { notFound } from "next/navigation";
+import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
+import { Suspense } from 'react'
+import { Geist, Geist_Mono } from 'next/font/google'
+import '@/app/globals.css'
+import Provider from '@/app/provider'
+import { Locale, locales } from '@/config/i18n-config'
+import { getTranslations } from 'next-intl/server'
+import Script from 'next/script'
+import { notFound } from 'next/navigation'
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+})
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+})
 
 export const metadata: Metadata = {
-  metadataBase: new URL( process.env.NEXT_PUBLIC_SITE_URL || 'https://digibank.tdevs.co/' ),
-  title: 'Digibank - Digital Banking Made Simple',
-  description: 'Experience seamless digital banking with Digibank. Manage your money, make transfers, and access financial services anytime, anywhere.',
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ||
+      'https://digibank.tdevs.co/'
+  ),
+  title: 'Script',
+  description: 'Script',
   keywords: [
     'digital banking',
     'online banking',
@@ -46,10 +49,11 @@ export const metadata: Metadata = {
     'smart banking',
   ],
   openGraph: {
-    title: 'Digibank | Modern Digital Banking Solution',
-    description: 'Transform your banking experience with Digibank. Access your accounts, make transfers, and manage your finances with our secure digital platform.',
+    title: 'Script',
+    description:
+      'Transform your banking experience with Digibank. Access your accounts, make transfers, and manage your finances with our secure digital platform.',
     url: process.env.NEXT_PUBLIC_SITE_URL,
-    siteName: 'Digibank',
+    siteName: 'Script',
     images: [
       {
         url: '/images/digibank-og.webp',
@@ -69,7 +73,8 @@ export const metadata: Metadata = {
     canonical: process.env.NEXT_PUBLIC_SITE_URL,
   },
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+    google:
+      process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
   },
   authors: [{ name: 'Digibank' }],
   generator: 'Next.js',
@@ -84,15 +89,20 @@ export const metadata: Metadata = {
   },
   category: 'Finance',
   classification: 'Digital Banking',
-};
+}
 
-async function getMessages( locale: string ) {
+async function getMessages(locale: string) {
   try {
-    const messages = ( await import( `@/messages/${locale}.json` )).default;
-    return messages;
-  } catch ( error ) {
-    console.error( `Failed to load messages for locale ${locale}:`, error );
-    return ( await import( `@/messages/en.json` )).default;
+    const messages = (
+      await import(`@/messages/${locale}.json`)
+    ).default
+    return messages
+  } catch (error) {
+    console.error(
+      `Failed to load messages for locale ${locale}:`,
+      error
+    )
+    return (await import(`@/messages/en.json`)).default
   }
 }
 
@@ -100,22 +110,20 @@ export default async function RootLayout({
   children,
   params,
 }: {
-children: ReactNode;
-params: Promise<{ locale: string }>;
+  children: ReactNode
+  params: Promise<{ locale: string }>
 }) {
-  const { locale } = await params;
+  const { locale } = await params
 
-  if ( !locales.includes( locale as Locale )) {
-    notFound();
+  if (!locales.includes(locale as Locale)) {
+    notFound()
   }
 
-  const messages = await getMessages( locale );
-  await getTranslations({ locale });
+  const messages = await getMessages(locale)
+  await getTranslations({ locale })
 
   return (
-    <html
-      lang={locale}
-    >
+    <html lang={locale}>
       <head>
         <Script
           id="gtm-script"
@@ -155,10 +163,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         src="https://cdn.counter.dev/script.js"
         data-id={
           process.env.COUNTER_API_KEY ??
-'f30df6f3-776d-4154-959d-0210ac8a8325'
+          'f30df6f3-776d-4154-959d-0210ac8a8325'
         }
         data-utcoffset="-3"
       ></Script>
     </html>
-  );
+  )
 }
