@@ -89,3 +89,13 @@ export function createExcelFile( companies: any[]): Blob {
     type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   });
 }
+
+export async function readCompaniesFromExcel(file: File): Promise<string[]> {
+  try {
+    const companies = await parseExcelFile(file);
+    return companies.map(company => company.empresa);
+  } catch (error) {
+    console.error('Error reading Excel file:', error);
+    throw error;
+  }
+}
