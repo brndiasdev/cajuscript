@@ -6,6 +6,19 @@ import {
   SearchConfig,
 } from '@/types/company';
 import { parseExcelFile } from '@/utils/excelParser';
+import { GoogleSearchService } from '../services/googleSearch';
+
+interface GoogleSearchItem {
+  title: string;
+  link: string;
+  snippet: string;
+}
+
+interface GoogleSearchResult {
+  title: string;
+  link: string;
+  snippet: string;
+}
 
 export async function processCompanies(
   companies: Company[],
@@ -120,5 +133,45 @@ export async function processExcelFile(
   } catch ( error ) {
     console.error( 'Error processing Excel file:', error );
     throw error;
+  }
+}
+
+export async function processCompany(
+  company: string,
+  apiKey: string,
+  searchEngineId: string,
+  maxLinksPerCompany: number,
+): Promise<ProcessedCompany> {
+  try {
+    const searchService = new GoogleSearchService({
+      apiKey,
+      searchEngineId,
+      maxLinksPerCompany,
+      searchDelay: 500
+    });
+
+    const results = await searchService.search(company);
+
+    const links = results.map((item: GoogleSearchResult) => ({
+      title: item.title,
+      link: item.link,
+      snippet: item.snippet,
+      domain: new URL(item.link).hostname
+    }));
+
+    return {
+      empresa: company,
+      links,
+      status: 'complete',
+      message: `Found ${links.length} links`
+    };
+  } catch (error) {
+    console.error(`Error processing company ${company}:`, error);
+    return {
+      empresa: company,
+      links: [],
+      status: 'error',
+      message: error instanceof Error ? error.message : String(error)
+    };
   }
 }
