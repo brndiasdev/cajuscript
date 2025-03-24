@@ -1,8 +1,8 @@
 {
   "app": {
-    "title": "Script - Search Automation",
+    "title": "CajuScript - Search Automation",
     "subtitle": "Automate your searches with ease and efficiency",
-    "footer": "Script © 2025 - All rights reserved"
+    "footer": "CajuScript © 2025 - All rights reserved"
   },
   "upload": {
     "title": "Input File",

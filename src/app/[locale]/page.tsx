@@ -9,9 +9,9 @@ import FileUploadForm from '../../components/FileUploadForm';
 import ProgressIndicator from '../../components/ProgressIndicator';
 import ResultsTable from '../../components/ResultsTable';
 import LogDisplay from '../../components/LogDisplay';
-import { processExcelFile } from '../actions/searchCompanies';
 import { ProcessedCompany } from '@/types/company';
-import { createExcelFile } from '@/utils/excelParser';
+import { createExcelFile, readCompaniesFromExcel } from '@/utils/excelParser';
+import { processCompany } from '@/app/actions/searchCompanies';
 
 interface LogEntry {
   timestamp: string;
@@ -35,6 +35,8 @@ export default function Home() {
 
   const [logs, setLogs] = useState<LogEntry[]>([]);
 
+  const [processingController, setProcessingController] = useState<AbortController | null>(null);
+
   const t = useTranslations();
 
   const handleConfigChange = ( config: {
@@ -43,6 +45,7 @@ export default function Home() {
     maxLinksPerCompany: number;
     searchDelay: number;
   }) => {
+    console.log("handleConfigChange", config)
     setApiKey( config.apiKey );
     setSearchEngineId( config.searchEngineId );
     setMaxLinksPerCompany( config.maxLinksPerCompany );
@@ -71,46 +74,110 @@ export default function Home() {
     setLogs([]);
   };
 
+  const processCompanies = async (companies: string[]) => {
+    const controller = new AbortController();
+    setProcessingController(controller);
+
+    try {
+      const processedResults: ProcessedCompany[] = [];
+      setStatus('processing');
+
+      for (let i = 0; i < companies.length; i++) {
+        if (controller.signal.aborted) {
+          break;
+        }
+
+        if (status === 'paused') {
+          await new Promise(resolve => {
+            const checkInterval = setInterval(() => {
+              if (status !== 'paused') {
+                clearInterval(checkInterval);
+                resolve(true);
+              }
+            }, 100);
+          });
+        }
+
+        const company = companies[i];
+        addLog(`Processing company: ${company}`, 'info');
+
+        try {
+          const result = await processCompany(
+            company,
+            apiKey,
+            searchEngineId,
+            maxLinksPerCompany
+          );
+
+          processedResults.push(result);
+          setResults([...processedResults]);
+          setCurrentIndex(i + 1);
+          
+          if (i < companies.length - 1) { // Don't delay after the last company
+            await new Promise(resolve => setTimeout(resolve, searchDelay));
+          }
+        } catch (error) {
+          addLog(`Error processing company ${company}: ${error}`, 'error');
+          processedResults.push({
+            empresa: company,
+            links: [],
+            status: 'error',
+            message: error instanceof Error ? error.message : String(error)
+          });
+        }
+      }
+
+      if (processedResults.length > 0) {
+        setStatus('complete');
+        addLog(`Search completed. Processed ${processedResults.length} companies.`, 'success');
+      } else {
+        setStatus('error');
+        addLog('No companies were processed successfully.', 'error');
+      }
+    } catch (error) {
+      setStatus('error');
+      addLog(`Error: ${error instanceof Error ? error.message : String(error)}`, 'error');
+    } finally {
+      setProcessingController(null);
+    }
+  };
+
   const handleStart = async () => {
-    if ( !selectedFile || !apiKey || !searchEngineId ) {
-      addLog( 'Missing file or configuration', 'error' );
+    if (!selectedFile || !apiKey || !searchEngineId) {
+      addLog('Missing file or configuration', 'error');
       return;
     }
 
     try {
-      setStatus( 'processing' );
-      addLog( 'Starting search process', 'info' );
+      setStatus('processing');
+      addLog('Starting search process', 'info');
 
-      const formData = new FormData();
-      formData.append( 'file', selectedFile );
-      formData.append( 'apiKey', apiKey );
-      formData.append( 'searchEngineId', searchEngineId );
-      formData.append( 'maxLinksPerCompany', maxLinksPerCompany.toString());
-      formData.append( 'searchDelay', searchDelay.toString());
+      const companies = await readCompaniesFromExcel(selectedFile);
+      
+      if (companies.length === 0) {
+        throw new Error('No companies found in the Excel file');
+      }
 
-      const processedResults = await processExcelFile( formData );
+      setTotalCompanies(companies.length);
+      addLog(`Found ${companies.length} companies to process`, 'info');
 
-      setResults( processedResults );
-      setTotalCompanies( processedResults.length );
-      setCurrentIndex( processedResults.length );
-      setStatus( 'complete' );
-
-      addLog( `Search completed. Processed ${processedResults.length} companies.`, 'success' );
-    } catch ( error ) {
-      setStatus( 'error' );
-      addLog( `Error: ${error instanceof Error ? error.message : String( error )}`, 'error' );
+      await processCompanies(companies);
+    } catch (error) {
+      setStatus('error');
+      addLog(`Error: ${error instanceof Error ? error.message : String(error)}`, 'error');
     }
   };
 
   const handlePause = () => {
-    setStatus( 'paused' );
-    addLog( 'Processing paused', 'warning' );
+    setStatus('paused');
+    addLog('Processing paused', 'warning');
   };
 
   const handleStop = () => {
-    setStatus( 'waiting' );
-    setCurrentIndex( 0 );
-    addLog( 'Processing stopped', 'warning' );
+    processingController?.abort();
+    setStatus('waiting');
+    setCurrentIndex(0);
+    addLog('Processing stopped', 'warning');
   };
 
   const handleDownloadResults = () => {

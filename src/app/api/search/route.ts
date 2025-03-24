@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleSearchService } from '../services/googleSearch';
+import { GoogleSearchService } from '../../services/googleSearch';
 
 export async function POST( request: NextRequest ) {
   try {
