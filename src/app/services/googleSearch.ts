@@ -257,7 +257,7 @@ export class GoogleSearchService {
     if (allResults.length === 0) {
       const fallbackURL = this.generateFallbackURL(companyName);
       allResults.push({
-        title: `${companyName} - Site Sugerido`,
+        title: `${companyName} - Site Sugerido (Ainda não tem um site oficial.)`,
         link: fallbackURL,
         snippet: `Endereço sugerido para a empresa ${companyName}.`,
         domain: new URL(fallbackURL).hostname,
