@@ -11,7 +11,7 @@ Uma aplicação Next.js 15 com TypeScript para automatização de pesquisas no G
 - 🌐 Suporte a internacionalização (Português e Inglês)
 - 📱 Interface responsiva com Tailwind CSS
 - 🚀 Otimizado para SSR (Server-Side Rendering)
-
+<!--  -->
 ## Requisitos
 
 - Node.js 18.17.0 ou superior
